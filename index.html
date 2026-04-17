@@ -23,6 +23,14 @@
 </head>
 <body class="p-4">
 
+    <div id="settings-modal" class="floating-modal" onclick="this.style.display='none'">
+        <div class="glass border-panel w-[600px] p-6 space-y-4" onclick="event.stopPropagation()">
+            <h2 id="modal-title" class="text-blue-400 font-black uppercase text-xs border-b border-white/10 pb-2">Configuration</h2>
+            <textarea id="modal-input" class="input-p7m h-48 font-mono" placeholder="Paste list here (one per line)..."></textarea>
+            <button onclick="saveModalData()" class="w-full bg-blue-600 py-3 rounded font-black uppercase text-xs">Save Matrix</button>
+        </div>
+    </div>
+
     <div id="identity-modal" class="floating-modal" onclick="this.style.display='none'">
         <div class="glass border-panel w-[700px] p-6 space-y-4" onclick="event.stopPropagation()">
             <h2 class="text-purple-400 font-black uppercase text-xs border-b border-white/10 pb-2">Global Identity Settings</h2>
@@ -50,14 +58,6 @@
         </div>
     </div>
 
-    <div id="settings-modal" class="floating-modal" onclick="this.style.display='none'">
-        <div class="glass border-panel w-[600px] p-6 space-y-4" onclick="event.stopPropagation()">
-            <h2 id="modal-title" class="text-blue-400 font-black uppercase text-xs border-b border-white/10 pb-2">Configuration</h2>
-            <textarea id="modal-input" class="input-p7m h-48 font-mono" placeholder="Manual inputs..."></textarea>
-            <button onclick="saveModalData()" class="w-full bg-blue-600 py-3 rounded font-black uppercase text-xs">Save Matrix</button>
-        </div>
-    </div>
-
     <div class="max-w-[1900px] mx-auto grid grid-cols-12 gap-4">
         
         <div class="col-span-3 space-y-4">
@@ -67,7 +67,7 @@
             <div class="premium-border">
                 <div class="border-panel glass space-y-3">
                     <p class="text-[10px] font-black text-blue-400 uppercase">Proxy Tunneling</p>
-                    <button id="btn-proxy-connect" onclick="connectProxy()" class="w-full bg-blue-600 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-[0_0_15px_rgba(37,99,235,0.4)]">Connect IP</button>
+                    <button id="btn-proxy-connect" onclick="connectProxy()" class="w-full bg-blue-600 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest">Connect IP</button>
                     <div id="px-status" class="text-center text-[9px] text-zinc-500 uppercase font-bold">Status: Disconnected</div>
                 </div>
             </div>
@@ -81,8 +81,8 @@
                         <option value="continuous">Continuously Send (Batch)</option>
                     </select>
                     <div id="batch-container" class="hidden flex justify-between items-center bg-zinc-900/50 p-2 rounded">
-                        <label class="text-[10px]">Jump Count</label>
-                        <input type="number" id="smtp-jump" value="5" class="input-p7m !w-16 !p-1 text-center">
+                        <label class="text-[10px]">Jump after</label>
+                        <input type="number" id="smtp-jump" value="5" class="input-p7m !w-16">
                     </div>
                     <div class="flex justify-between items-center">
                         <label class="text-[10px]">Delay (ms)</label>
@@ -93,8 +93,8 @@
 
             <div class="border-panel border-b-4 border-blue-500 text-center">
                 <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-zinc-900 p-4 rounded-xl text-green-500"><span class="text-[9px] text-zinc-500">SENT</span><p id="stat-sent" class="text-3xl font-black">0</p></div>
-                    <div class="bg-zinc-900 p-4 rounded-xl text-red-500"><span class="text-[9px] text-zinc-500">FAIL</span><p id="stat-fail" class="text-3xl font-black">0</p></div>
+                    <div class="bg-zinc-900 p-4 rounded-xl text-green-500"><span class="text-[9px] text-zinc-500 uppercase">Sent</span><p id="stat-sent" class="text-3xl font-black">0</p></div>
+                    <div class="bg-zinc-900 p-4 rounded-xl text-red-500"><span class="text-[9px] text-zinc-500 uppercase">Fail</span><p id="stat-fail" class="text-3xl font-black">0</p></div>
                 </div>
                 <button onclick="startBlast()" id="btn-start" class="w-full bg-blue-600 py-4 rounded-xl font-black uppercase text-xs">Execute Blast</button>
                 <button onclick="stopBlast()" id="btn-stop" class="w-full bg-red-600 py-4 rounded-xl font-black uppercase text-xs hidden">Stop Engine</button>
@@ -104,20 +104,34 @@
         <div class="col-span-6 space-y-4">
             <div class="grid grid-cols-2 gap-4">
                 <div class="border-panel">
-                    <div class="flex justify-between items-center"><span class="text-blue-400 font-bold uppercase">SMTP (<b id="count-smtp">0</b>)</span><input type="file" id="f-smtp" multiple class="opacity-0 absolute w-0"><button onclick="$('f-smtp').click()" class="bg-zinc-800 px-2 py-1 rounded text-[9px]">UPLOAD +</button></div>
-                    <div class="flex justify-between items-center mt-2"><p id="name-smtp" class="text-[9px] text-zinc-500 italic truncate">Stacked: None</p><button onclick="clearStack('smtp')" class="text-red-500 text-[8px] font-bold">CLEAR</button></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-400 font-bold uppercase">SMTP (<b id="count-smtp">0</b>)</span>
+                        <input type="file" id="f-smtp" multiple class="hidden">
+                        <button onclick="$('f-smtp').click()" class="bg-zinc-800 px-2 py-1 rounded text-[9px]">UPLOAD +</button>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <p id="name-smtp" class="text-[9px] text-zinc-500 italic truncate">Stacked: None</p>
+                        <button onclick="clearStack('smtp')" class="text-red-500 text-[8px] font-bold">CLEAR</button>
+                    </div>
                 </div>
                 <div class="border-panel">
-                    <div class="flex justify-between items-center"><span class="text-green-400 font-bold uppercase">Target (<b id="count-target">0</b>)</span><input type="file" id="f-target" multiple class="opacity-0 absolute w-0"><button onclick="$('f-target').click()" class="bg-zinc-800 px-2 py-1 rounded text-[9px]">UPLOAD +</button></div>
-                    <div class="flex justify-between items-center mt-2"><p id="name-target" class="text-[9px] text-zinc-500 italic truncate">Stacked: None</p><button onclick="clearStack('target')" class="text-red-500 text-[8px] font-bold">CLEAR</button></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-green-400 font-bold uppercase">Target (<b id="count-target">0</b>)</span>
+                        <input type="file" id="f-target" multiple class="hidden">
+                        <button onclick="$('f-target').click()" class="bg-zinc-800 px-2 py-1 rounded text-[9px]">UPLOAD +</button>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <p id="name-target" class="text-[9px] text-zinc-500 italic truncate">Stacked: None</p>
+                        <button onclick="clearStack('target')" class="text-red-500 text-[8px] font-bold">CLEAR</button>
+                    </div>
                 </div>
             </div>
 
             <div class="premium-border">
                 <div class="border-panel glass space-y-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="relative"><div class="flex justify-between mb-1"><label>Sender Name</label><input type="checkbox" id="ai-sender"></div><input type="text" id="s-name" placeholder="Manual Name" class="input-p7m"><button onclick="openSettings('sender')" class="absolute right-2 bottom-2">⚙️</button></div>
-                        <div class="relative"><div class="flex justify-between mb-1"><label>Subject</label><input type="checkbox" id="ai-subject"></div><input type="text" id="s-sub" placeholder="Manual Subject" class="input-p7m"><button onclick="openSettings('subject')" class="absolute right-2 bottom-2">⚙️</button></div>
+                        <div class="relative"><div class="flex justify-between mb-1"><label>Sender Name</label><input type="checkbox" id="ai-sender"></div><input type="text" id="s-name" placeholder="Manual Name" class="input-p7m"><button onclick="openSettings('sender')" class="absolute right-2 bottom-2 text-xs">⚙️</button></div>
+                        <div class="relative"><div class="flex justify-between mb-1"><label>Subject</label><input type="checkbox" id="ai-subject"></div><input type="text" id="s-sub" placeholder="Manual Subject" class="input-p7m"><button onclick="openSettings('subject')" class="absolute right-2 bottom-2 text-xs">⚙️</button></div>
                     </div>
 
                     <div class="bg-blue-600/5 p-4 rounded-xl space-y-3">
@@ -127,8 +141,10 @@
                             <select id="encoding" class="input-p7m !w-32"><option value="7bit">Plain</option><option value="base64">Base64</option></select>
                         </div>
                         <div class="flex items-center gap-3">
-                            <button class="bg-zinc-800 px-4 py-2 rounded text-[10px] font-bold border border-white/10 relative">ATTACH<input type="file" id="f-attach" multiple class="opacity-0 absolute inset-0"></button>
-                            <div id="attach-preview" class="flex gap-2 overflow-x-auto"></div>
+                            <button class="bg-zinc-800 px-4 py-2 rounded text-[10px] font-bold border border-white/10 relative">
+                                ATTACH <input type="file" id="f-attach" multiple class="opacity-0 absolute inset-0 cursor-pointer">
+                            </button>
+                            <div id="attach-preview" class="flex gap-2 overflow-x-auto text-[8px] text-blue-400"></div>
                         </div>
                     </div>
 
@@ -136,8 +152,8 @@
                         <div class="space-y-2">
                             <div class="flex justify-between items-center"><label class="text-blue-400 font-bold uppercase">HTML Body</label><div class="flex gap-2">Auto <input type="checkbox" id="auto-html"></div></div>
                             <textarea id="s-body" oninput="updatePreview()" class="input-p7m h-[180px] font-mono text-[9px]" placeholder="HTML Source..."></textarea>
-                            <div class="flex justify-between items-center mt-2"><label class="text-green-400 font-bold uppercase">Plain Text</label><div class="flex gap-2">Auto Gen <input type="checkbox" id="auto-text"></div></div>
-                            <textarea id="s-text" class="input-p7m h-[120px] font-mono text-[9px]" placeholder="Chaos Text..."></textarea>
+                            <div class="flex justify-between items-center mt-2"><label class="text-green-400 font-bold uppercase">Plain Text</label><div class="flex gap-2">Auto <input type="checkbox" id="auto-text"></div></div>
+                            <textarea id="s-text" class="input-p7m h-[120px] font-mono text-[9px]" placeholder="Text Body..."></textarea>
                         </div>
                         <div class="bg-white rounded overflow-hidden h-[340px]"><iframe id="p-frame" class="w-full h-full border-0"></iframe></div>
                     </div>
@@ -171,15 +187,15 @@
                 if(r.success) {
                     proxyActive = true;
                     $('px-status').innerText = "Status: Tunnel Active";
-                    $('btn-proxy-connect').className = "w-full bg-green-600 py-3 rounded-xl font-black uppercase text-[10px]";
-                    addLog("PROXY", "proxyConfig.js Bridged Successfully", "green");
+                    $('btn-proxy-connect').classList.replace('bg-blue-600', 'bg-green-600');
+                    addLog("PROXY", "Config Bridged", "green");
                 }
-            } catch (e) { addLog("PROXY", "Server Connection Failed", "red"); }
+            } catch (e) { addLog("PROXY", "Connection Failed", "red"); }
         }
 
         function clearStack(type) {
-            if(type === 'smtp') { smtps = []; $('count-smtp').innerText = '0'; $('name-smtp').innerText = 'Ready...'; }
-            else { targets = []; $('count-target').innerText = '0'; $('name-target').innerText = 'Ready...'; }
+            if(type === 'smtp') { smtps = []; $('count-smtp').innerText = '0'; $('name-smtp').innerText = 'Stacked: None'; }
+            else { targets = []; $('count-target').innerText = '0'; $('name-target').innerText = 'Stacked: None'; }
             addLog("WIPE", `${type.toUpperCase()} Stack Cleared`, "red");
         }
 
@@ -198,8 +214,21 @@
         $('f-smtp').onchange = e => parseFiles(e, smtps, 'count-smtp', 'name-smtp');
         $('f-target').onchange = e => parseFiles(e, targets, 'count-target', 'name-target');
 
+        // FIXED ATTACHMENT UPLOAD LOGIC
+        $('f-attach').onchange = e => {
+            Array.from(e.target.files).forEach(f => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    attachments.push({ filename: f.name, content: reader.result.split(',')[1], encoding: 'base64' });
+                    $('attach-preview').innerHTML += `<span>📎 ${f.name}</span>`;
+                    addLog("ATTACH", `${f.name} queued`, "blue");
+                };
+                reader.readAsDataURL(f);
+            });
+        };
+
         function toggleBatch() {
-            $('batch-container').style.display = ($('strategy').value === 'continuous') ? 'flex' : 'none';
+            $('batch-container').classList.toggle('hidden', $('strategy').value !== 'continuous');
         }
 
         function openSettings(type) {
@@ -216,7 +245,7 @@
         }
 
         function updatePreview() {
-            const btn = `<div style="text-align:center;margin:15px 0;"><a href="${$('url-box').value}" style="background:#2563eb;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">${$('url-text').value || 'Button'}</a></div>`;
+            const btn = $('url-box').value ? `<div style="text-align:center;margin:15px 0;"><a href="${$('url-box').value}" style="background:#2563eb;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">${$('url-text').value || 'Click'}</a></div>` : '';
             $('p-frame').srcdoc = `<html><body>${$('s-body').value}${btn}</body></html>`;
         }
 
@@ -235,32 +264,21 @@
             for(let i=0; i<targets.length; i++) {
                 if(!isRunning) break;
 
-                // SMTP Rotation Logic (Batch/Jump)
-                let smtpIndex = 0;
-                if($('strategy').value === 'continuous') {
-                    smtpIndex = Math.floor(i / jumpLimit) % smtps.length;
-                } else {
-                    smtpIndex = i % smtps.length;
-                }
-
-                let finalBody = $('p-frame').srcdoc;
-                if($('auto-html').checked) {
-                    const fonts = ['Arial', 'Verdana', 'Tahoma', 'Georgia'];
-                    finalBody = `<div style="font-family:${rand(fonts)}; font-size:${rand(['13px','14px','15px'])};">${finalBody}</div>`;
-                }
+                let smtpIdx = ($('strategy').value === 'continuous') ? Math.floor(i / jumpLimit) % smtps.length : i % smtps.length;
 
                 const payload = {
-                    smtp: { user: smtps[smtpIndex][0], pass: smtps[smtpIndex][1] },
+                    smtp: { user: smtps[smtpIdx][0], pass: smtps[smtpIdx][1] },
                     proxy: { active: proxyActive },
                     mail: { 
                         to: targets[i][0], 
                         fromName: ($('ai-sender').checked && names.length) ? rand(names) : $('s-name').value, 
                         subject: ($('ai-subject').checked && subs.length) ? rand(subs) : $('s-sub').value, 
-                        html: finalBody, 
+                        html: $('p-frame').srcdoc, 
                         text: $('s-text').value 
                     },
-                    headers: { userAgent: $('h-ua').value || "Mozilla/5.0...", mailer: $('h-mailer').value },
-                    encoding: $('encoding').value, attachments
+                    headers: { userAgent: $('h-ua').value || "Mozilla/5.0...", mailer: $('h-mailer').value || "P7M Ultra" },
+                    encoding: $('encoding').value, 
+                    attachments
                 };
 
                 try {
@@ -268,7 +286,7 @@
                     const r = await res.json();
                     if(r.success) {
                         $('stat-sent').innerText = parseInt($('stat-sent').innerText)+1;
-                        addLog("PASS", `Target: ${targets[i][0]} via SMTP[${smtpIndex}]`, "green");
+                        addLog("PASS", `Target: ${targets[i][0]}`, "green");
                     } else throw r;
                 } catch (e) {
                     $('stat-fail').innerText = parseInt($('stat-fail').innerText)+1;
