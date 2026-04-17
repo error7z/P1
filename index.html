@@ -18,40 +18,43 @@
         .input-p7m:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59,130,246,0.3); }
         .floating-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 100; }
         .debug-log { font-family: 'Space Mono', monospace; font-size: 10px; line-height: 1.4; }
-        .ai-active { background: linear-gradient(90deg, #3b82f6, #9333ea); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        .ai-active { background: linear-gradient(90deg, #3b82f6, #9333ea); animation: pulse 2s infinite; border-color: #9333ea !important; }
+        .attach-badge { background: #1e293b; border: 1px solid #334155; padding: 4px 8px; border-radius: 6px; font-size: 9px; display: flex; align-items: center; gap: 6px; }
         .custom-scroll::-webkit-scrollbar { width: 3px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="p-6">
 
-    <div id="modal" class="floating-modal" onclick="closeModal(event)">
+    <div id="modal" class="floating-modal" onclick="this.style.display='none'">
         <div class="glass border-panel w-[500px] p-6 space-y-4" onclick="event.stopPropagation()">
             <div class="flex justify-between border-b border-white/10 pb-2">
                 <h2 id="modal-title" class="text-blue-400 font-bold uppercase text-xs tracking-widest">Settings</h2>
-                <button onclick="document.getElementById('modal').style.display='none'" class="text-zinc-500">✕</button>
+                <button onclick="this.parentElement.parentElement.parentElement.style.display='none'" class="text-zinc-500">✕</button>
             </div>
             <div id="modal-content" class="space-y-4">
+                <textarea id="modal-list" class="input-p7m h-48" placeholder="Paste manual list (One per line)..."></textarea>
+                <div class="flex items-center gap-4">
+                    <span class="text-[9px] font-bold text-zinc-500 uppercase">Or Upload File</span>
+                    <input type="file" id="modal-file" accept=".txt,.csv" class="text-[10px] text-zinc-400">
                 </div>
-            <button onclick="saveModalData()" class="w-full bg-blue-600 py-2 rounded font-bold text-[10px] uppercase">Save & Lock</button>
+            </div>
+            <button onclick="saveModalData()" class="w-full bg-blue-600 py-3 rounded font-black text-[10px] uppercase">Lock Selection</button>
         </div>
     </div>
 
     <div class="max-w-[1850px] mx-auto grid grid-cols-12 gap-6">
-        
         <div class="col-span-3 space-y-6">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.5)]">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
                 </div>
                 <h1 class="text-2xl font-black italic">P7M <span class="text-blue-500">INFINITY</span></h1>
-                <button onclick="openGlobalSettings()" class="ml-auto text-xl">⚙️</button>
             </div>
 
             <div class="premium-border">
                 <div class="border-panel glass space-y-3">
-                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-tighter">Intelligence Hub (Proxy Deep Scan)</p>
+                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-tighter">Proxy Infrastructure</p>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="px-host" placeholder="Host" class="input-p7m save-data">
                         <input type="text" id="px-port" placeholder="Port" class="input-p7m save-data">
@@ -59,7 +62,7 @@
                         <input type="password" id="px-pass" placeholder="Pass" class="input-p7m save-data">
                     </div>
                     <button onclick="deepScanIP()" class="w-full bg-blue-600/20 text-blue-400 border border-blue-600/50 py-2 rounded text-[10px] font-bold uppercase hover:bg-blue-600 hover:text-white transition">Verify Node Reputation</button>
-                    <div id="ip-details" class="bg-black/40 p-3 rounded-lg text-[9px] font-mono space-y-1 min-h-[150px] custom-scroll overflow-y-auto">
+                    <div id="ip-details" class="bg-black/40 p-3 rounded-lg text-[9px] font-mono space-y-1 min-h-[120px]">
                         <p class="text-zinc-600 italic">Standby for Signal...</p>
                     </div>
                 </div>
@@ -79,8 +82,8 @@
                     <div class="bg-zinc-900/50 p-4 rounded-xl text-center"><span class="text-[9px] text-zinc-500 uppercase">Delivered</span><p id="v-sent" class="text-3xl font-black text-green-500">0</p></div>
                     <div class="bg-zinc-900/50 p-4 rounded-xl text-center"><span class="text-[9px] text-zinc-500 uppercase">Blocked</span><p id="v-fail" class="text-3xl font-black text-red-500">0</p></div>
                 </div>
-                <button onclick="launch()" id="btn-start" class="w-full bg-blue-600 py-4 rounded-xl font-black text-xs uppercase tracking-widest btn-action">Initiate Infinity Blast</button>
-                <button onclick="forceStop()" id="btn-stop" class="w-full bg-red-600/20 text-red-500 border border-red-500/50 py-4 rounded-xl font-black text-xs hidden">Emergency Kill-Switch</button>
+                <button onclick="launch()" id="btn-start" class="w-full bg-blue-600 py-4 rounded-xl font-black text-xs uppercase tracking-widest">Initiate Infinity Blast</button>
+                <button onclick="forceStop()" id="btn-stop" class="w-full bg-red-600 py-4 rounded-xl font-black text-xs hidden">Emergency Stop</button>
             </div>
         </div>
 
@@ -89,14 +92,14 @@
                 <div class="border-panel">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-[10px] font-bold uppercase text-blue-400">SMTP Matrix (<b id="count-smtp">0</b>)</span>
-                        <button onclick="clearAll('smtp')" class="text-red-500 text-[9px] font-bold">CLEAR</button>
+                        <button onclick="clearAll('smtp')" class="text-red-500 text-[9px] font-bold">WIPE</button>
                     </div>
                     <input type="file" id="f-smtp" accept=".csv,.txt" class="text-[10px] w-full text-zinc-500">
                 </div>
                 <div class="border-panel">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-[10px] font-bold uppercase text-green-400">Target Core (<b id="count-target">0</b>)</span>
-                        <button onclick="clearAll('target')" class="text-red-500 text-[9px] font-bold">CLEAR</button>
+                        <button onclick="clearAll('target')" class="text-red-500 text-[9px] font-bold">WIPE</button>
                     </div>
                     <input type="file" id="f-target" accept=".csv,.txt" class="text-[10px] w-full text-zinc-500">
                 </div>
@@ -115,26 +118,28 @@
                         </div>
                     </div>
 
-                    <div class="bg-blue-600/5 p-4 rounded-xl grid grid-cols-12 gap-4 items-center">
-                        <div class="col-span-6"><input type="text" id="btn-url" placeholder="Redirect URL" class="input-p7m save-data"></div>
-                        <div class="col-span-3"><input type="text" id="btn-text" placeholder="Button Label" class="input-p7m save-data"></div>
-                        <div class="col-span-3 relative group">
-                            <div class="premium-border !rounded-lg"><div class="glass p-2 text-center text-[9px] font-bold text-blue-400">ATTACH FILE</div></div>
-                            <input type="file" id="f-attach" multiple class="absolute inset-0 opacity-0 cursor-pointer">
+                    <div class="bg-blue-600/5 p-4 rounded-xl space-y-3">
+                        <div class="flex gap-4">
+                            <input type="text" id="btn-url" placeholder="Redirect URL" class="input-p7m save-data">
+                            <input type="text" id="btn-text" placeholder="Button Label" class="input-p7m save-data">
+                            <div class="relative min-w-[120px]">
+                                <button class="w-full bg-blue-600/20 py-2 rounded text-[9px] font-bold border border-blue-600/40">ATTACH +</button>
+                                <input type="file" id="f-attach" multiple class="absolute inset-0 opacity-0 cursor-pointer">
+                            </div>
                         </div>
+                        <div id="attach-preview" class="flex flex-wrap gap-2"></div>
                     </div>
 
                     <div class="flex justify-between items-center">
                         <div class="flex gap-2">
-                            <button onclick="toggleAI()" id="ai-btn" class="bg-zinc-800 px-3 py-1 rounded-full text-[9px] font-black uppercase border border-white/10 transition">AI Infinity Mode</button>
-                            <label class="flex items-center gap-1 text-[9px] font-bold text-zinc-500 uppercase"><input type="checkbox" id="check-base64" class="save-data"> Base64 Payload</label>
+                            <button onclick="toggleAI()" id="ai-btn" class="bg-zinc-800 px-3 py-1 rounded-full text-[9px] font-black uppercase border border-white/10 transition">AI Mode</button>
+                            <label class="flex items-center gap-1 text-[9px] font-bold text-zinc-500 uppercase"><input type="checkbox" id="check-base64" onchange="updatePreview()" class="save-data"> Base64 Payload</label>
                         </div>
-                        <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Payload Architecture</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <textarea id="s-body" oninput="updatePreview()" class="input-p7m font-mono text-[10px] h-[350px] custom-scroll save-data" placeholder="Inject HTML or Encoded String..."></textarea>
-                        <div class="bg-white rounded-lg overflow-hidden h-[350px] border border-zinc-900"><iframe id="p-frame" class="w-full h-full border-0"></iframe></div>
+                        <textarea id="s-body" oninput="updatePreview()" class="input-p7m font-mono text-[10px] h-[350px] custom-scroll save-data" placeholder="Inject HTML..."></textarea>
+                        <div class="bg-white rounded-lg overflow-hidden h-[350px]"><iframe id="p-frame" class="w-full h-full border-0"></iframe></div>
                     </div>
                 </div>
             </div>
@@ -143,11 +148,11 @@
         <div class="col-span-3">
             <div class="border-panel h-full flex flex-col glass">
                 <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-2">
-                    <span class="text-[10px] font-black text-zinc-500 tracking-widest uppercase">Deep Diagnostics</span>
-                    <button onclick="document.getElementById('log').innerHTML=''" class="text-red-500 text-[9px] font-bold">WIPE</button>
+                    <span class="text-[10px] font-black text-zinc-500 uppercase">Live Diagnostics</span>
+                    <button onclick="$('log').innerHTML=''" class="text-red-500 text-[9px] font-bold">WIPE</button>
                 </div>
                 <div id="log-container" class="flex-grow overflow-y-auto custom-scroll">
-                    <div id="log" class="debug-log space-y-2"></div>
+                    <div id="log" class="debug-log space-y-1"></div>
                 </div>
             </div>
         </div>
@@ -155,178 +160,151 @@
 
     <script>
         let smtps = [], targets = [], attachments = [], isRunning = false, aiEnabled = false;
-        let currentModalTarget = '';
+        let activeModalType = '';
+        const $ = (id) => document.getElementById(id);
 
-        const aiFonts = ['Arial', 'Verdana', 'Georgia', 'Tahoma', 'Trebuchet MS', 'Times New Roman', 'Garamond', 'Courier New', 'Brush Script MT', 'Impact', 'Lucida Sans', 'Palatino', 'Bookman', 'Avant Garde', 'Helvetica', 'Segoe UI', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Raleway', 'Ubuntu', 'Merriweather', 'Playfair Display', 'Oswald'];
+        // PERSISTENCE & DATA
+        function saveAllData() {
+            const d = {};
+            document.querySelectorAll('.save-data').forEach(el => d[el.id] = el.type === 'checkbox' ? el.checked : el.value);
+            localStorage.setItem('p7m_infinity_v4', JSON.stringify(d));
+        }
 
+        // MODAL SETTINGS
         function openModal(type) {
-            currentModalTarget = type;
-            const modal = document.getElementById('modal');
-            const content = document.getElementById('modal-content');
-            const title = document.getElementById('modal-title');
-            modal.style.display = 'flex';
+            activeModalType = type;
+            $('modal').style.display = 'flex';
+            $('modal-title').innerText = type === 'sender' ? "SENDER ROTATOR" : "SUBJECT ROTATOR";
+            $('modal-list').value = localStorage.getItem(`list_${type}`) || "";
             
-            if(type === 'sender') {
-                title.innerText = "SENDER NAME ROTATOR";
-                content.innerHTML = `<textarea id="modal-list" class="input-p7m h-32" placeholder="One name per line..."></textarea>
-                                     <input type="file" id="modal-file" accept=".txt,.csv" class="text-[10px] w-full">`;
-            } else if(type === 'subject') {
-                title.innerText = "SUBJECT LINE ROTATOR";
-                content.innerHTML = `<textarea id="modal-list" class="input-p7m h-32" placeholder="One subject per line..."></textarea>
-                                     <input type="file" id="modal-file" accept=".txt,.csv" class="text-[10px] w-full">`;
-            }
-            
-            // Auto-load saved list
-            const saved = localStorage.getItem(`list_${type}`);
-            if(saved) document.getElementById('modal-list').value = saved;
-
-            document.getElementById('modal-file').onchange = (e) => {
+            $('modal-file').onchange = (e) => {
                 const reader = new FileReader();
-                reader.onload = (f) => document.getElementById('modal-list').value = f.target.result;
+                reader.onload = (f) => { $('modal-list').value = f.target.result; };
                 reader.readAsText(e.target.files[0]);
             };
         }
 
         function saveModalData() {
-            const list = document.getElementById('modal-list').value;
-            localStorage.setItem(`list_${currentModalTarget}`, list);
-            addLog(`SUCCESS: ${currentModalTarget.toUpperCase()} LIST UPDATED`, "text-blue-400");
-            document.getElementById('modal').style.display = 'none';
+            localStorage.setItem(`list_${activeModalType}`, $('modal-list').value);
+            addLog(`SYNC: ${activeModalType.toUpperCase()} DATA SAVED`, "text-blue-400");
+            $('modal').style.display = 'none';
         }
 
+        // IP SCANNER
         async function deepScanIP() {
-            const display = document.getElementById('ip-details');
-            display.innerHTML = '<span class="animate-pulse text-blue-500 font-bold uppercase">CONNECTING TO NODE...</span>';
+            const display = $('ip-details');
+            display.innerHTML = '<span class="animate-pulse text-blue-400 font-bold">HANDSHAKING...</span>';
             const px = { host: $('#px-host').value, port: $('#px-port').value, user: $('#px-user').value, pass: $('#px-pass').value };
-            
             try {
                 const res = await fetch('/api/check-proxy', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(px) });
                 const r = await res.json();
                 if(r.success) {
                     display.innerHTML = `
-                        <div class="text-blue-400 border-b border-white/5 pb-1 mb-1">NODE: ${r.details.ip}</div>
-                        <div>ISP: <span class="text-white">${r.details.isp}</span></div>
-                        <div>LOC: <span class="text-white">${r.details.city}, ${r.details.country}</span></div>
-                        <div class="truncate">ASN: <span class="text-zinc-400">${r.details.asn}</span></div>
-                        <div class="flex justify-between">FRAUD SCORE: <span class="${r.details.fraud_score > 50 ? 'text-red-500' : 'text-green-500'} font-bold">${r.details.fraud_score}</span></div>
-                        <div class="flex justify-between">GOOGLE REP: <span class="text-blue-400 font-bold">${r.details.google_rep}</span></div>
-                        <div class="flex justify-between">STATUS: <span class="text-green-500 font-bold">${r.details.status}</span></div>
+                        <div class="text-blue-400 font-bold border-b border-white/5 pb-1">IP: ${r.details.ip}</div>
+                        <div>ISP: ${r.details.isp}</div>
+                        <div class="flex justify-between">FRAUD: <b class="${r.details.fraud_score > 40 ? 'text-red-500' : 'text-green-500'}">${r.details.fraud_score}</b></div>
+                        <div class="flex justify-between text-blue-400 font-bold">STATUS: ${r.details.status}</div>
                     `;
-                    addLog(`INTEL: Node ${r.details.ip} Verified`, "text-green-400");
+                    saveAllData();
                 }
             } catch (e) { display.innerHTML = '<span class="text-red-500">TUNNEL FAILED</span>'; }
         }
 
-        function toggleAI() {
-            aiEnabled = !aiEnabled;
-            const btn = document.getElementById('ai-btn');
-            btn.classList.toggle('ai-active', aiEnabled);
-            addLog(`SYSTEM: AI INFINITY MODE ${aiEnabled ? 'ENGAGED' : 'DISENGAGED'}`, aiEnabled ? "text-purple-400" : "text-zinc-500");
-            updatePreview();
-        }
+        // ATTACHMENT HANDLER
+        $('f-attach').onchange = (e) => {
+            const preview = $('attach-preview');
+            preview.innerHTML = '';
+            attachments = [];
+            Array.from(e.target.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    attachments.push({ filename: file.name, content: reader.result.split(',')[1], encoding: 'base64' });
+                    preview.innerHTML += `
+                        <div class="attach-badge">
+                            <span class="text-blue-400">📎</span>
+                            <span class="text-white truncate max-w-[100px]">${file.name}</span>
+                            <span class="text-zinc-600">(${(file.size/1024).toFixed(1)}KB)</span>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            });
+            addLog(`STAGED: ${e.target.files.length} ATTACHMENTS`, "text-purple-400");
+        };
 
-        function generateAIChaos() {
-            if(!aiEnabled) return { font: 'inherit', size: 'inherit' };
-            return {
-                font: aiFonts[Math.floor(Math.random() * aiFonts.length)],
-                size: Math.floor(Math.random() * (18 - 12 + 1) + 12) + 'px'
-            };
-        }
-
-        function assemblePayload() {
-            let html = document.getElementById('s-body').value;
-            if(document.getElementById('check-base64').checked && html) {
-                try { html = atob(html); } catch(e) { html = "ERROR: INVALID BASE64"; }
-            }
-            const chaos = generateAIChaos();
-            const btn = `<div style="text-align:center;margin:20px 0;"><a href="${$('#btn-url').value}" style="background:#3b82f6;color:#fff;padding:12px 25px;text-decoration:none;border-radius:5px;font-weight:bold;">${$('#btn-text').value}</a></div>`;
-            return `<div style="font-family:'${chaos.font}'; font-size:${chaos.size};">${html}${btn}</div>`;
-        }
-
-        async function sendMail(target, smtp) {
-            const senderList = localStorage.getItem('list_sender')?.split('\n').filter(n => n.trim() !== '') || [$('#s-name').value];
-            const subjectList = localStorage.getItem('list_subject')?.split('\n').filter(n => n.trim() !== '') || [$('#s-sub').value];
-
-            const payload = {
-                smtp: { user: smtp[0], pass: smtp[1] },
-                proxy: { host: $('#px-host').value, port: $('#px-port').value, user: $('#px-user').value, pass: $('#px-pass').value },
-                mail: {
-                    to: target[0],
-                    fromName: senderList[Math.floor(Math.random() * senderList.length)],
-                    subject: subjectList[Math.floor(Math.random() * subjectList.length)],
-                    html: assemblePayload()
-                },
-                attachments: attachments,
-                headers: { 'X-Priority': '1 (Highest)', 'X-Mailer': 'Microsoft Outlook 16.0' }
-            };
-
-            try {
-                const res = await fetch('/api/send', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-                const r = await res.json();
-                if(r.success) { 
-                    sentCount++; addLog(`[PASS] ${target[0]} | Node: Rotated`, "text-green-400"); 
-                } else { throw new Error(r.error); }
-            } catch (e) { 
-                failCount++; addLog(`[FAIL] ${target[0]} | ERR: ${e.message.substring(0,20)}...`, "text-red-500"); 
-            }
-            updateUI();
-        }
-
-        // --- Core Engine Helpers ---
-        let sentCount = 0, failCount = 0;
-        const $ = (id) => document.getElementById(id);
-        
+        // CORE ENGINE
         function handleCSV(e, type) {
             Papa.parse(e.target.files[0], { skipEmptyLines: true, complete: r => {
-                const data = r.data.filter(row => row.length > 0);
-                if(type === 'smtp') { smtps = [...smtps, ...data]; $('#count-smtp').innerText = smtps.length; }
-                else { targets = [...targets, ...data]; $('#count-target').innerText = targets.length; }
-                addLog(`STACK: ${data.length} Records Injected`, "text-blue-400");
-                saveAllData();
+                const data = r.data.filter(row => row.length >= 1);
+                if(type === 'smtp') { smtps = data; $('count-smtp').innerText = data.length; }
+                else { targets = data; $('count-target').innerText = data.length; }
+                addLog(`LOADED: ${data.length} IN ${type.toUpperCase()}`, "text-green-400");
             }});
         }
 
-        document.getElementById('f-smtp').onchange = e => handleCSV(e, 'smtp');
-        document.getElementById('f-target').onchange = e => handleCSV(e, 'target');
-        document.getElementById('f-attach').onchange = e => {
-            attachments = [];
-            for(let f of e.target.files) {
-                const reader = new FileReader();
-                reader.readAsDataURL(f);
-                reader.onload = () => attachments.push({ filename: f.name, content: reader.result.split(',')[1], encoding: 'base64' });
-            }
-            addLog(`PREMIUM: ${e.target.files.length} Attachments Locked`, "text-purple-400");
-        };
+        $('f-smtp').onchange = e => handleCSV(e, 'smtp');
+        $('f-target').onchange = e => handleCSV(e, 'target');
 
-        function addLog(msg, color) {
-            const div = document.createElement('div');
-            div.className = color;
-            div.innerHTML = `<span class="text-zinc-700">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
-            document.getElementById('log').prepend(div);
+        function updatePreview() {
+            let body = $('s-body').value;
+            if($('check-base64').checked) { try { body = atob(body); } catch(e) { body = "Invalid Base64"; } }
+            const btn = `<div style="text-align:center;margin:20px 0;"><a href="${$('btn-url').value}" style="background:#2563eb;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;">${$('btn-text').value}</a></div>`;
+            $('p-frame').srcdoc = `<html><body>${body}${btn}</body></html>`;
+            saveAllData();
         }
 
         async function launch() {
-            if(!smtps.length || !targets.length) return alert("LOAD STACKS");
-            isRunning = true; toggleUI(true);
+            if(!smtps.length || !targets.length) return alert("STACKS EMPTY");
+            isRunning = true;
+            $('btn-start').classList.add('hidden');
+            $('btn-stop').classList.remove('hidden');
+
+            const names = localStorage.getItem('list_sender')?.split('\n').filter(x => x.trim()) || [$('s-name').value];
+            const subs = localStorage.getItem('list_subject')?.split('\n').filter(x => x.trim()) || [$('s-sub').value];
+
             for(let i=0; i<targets.length; i++) {
                 if(!isRunning) break;
-                await sendMail(targets[i], smtps[i % smtps.length]);
-                await new Promise(r => setTimeout(r, parseInt($('#send-delay').value)));
+                const payload = {
+                    smtp: { user: smtps[i % smtps.length][0], pass: smtps[i % smtps.length][1] },
+                    proxy: { host: $('#px-host').value, port: $('#px-port').value, user: $('#px-user').value, pass: $('#px-pass').value },
+                    mail: {
+                        to: targets[i][0],
+                        fromName: names[Math.floor(Math.random() * names.length)],
+                        subject: subs[Math.floor(Math.random() * subs.length)],
+                        html: $('p-frame').srcdoc
+                    },
+                    attachments: attachments
+                };
+
+                try {
+                    const res = await fetch('/api/send', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                    const r = await res.json();
+                    if(r.success) {
+                        $('v-sent').innerText = parseInt($('v-sent').innerText) + 1;
+                        addLog(`PASS: ${targets[i][0]}`, "text-green-400");
+                    } else { throw new Error(r.error); }
+                } catch (e) {
+                    $('v-fail').innerText = parseInt($('v-fail').innerText) + 1;
+                    addLog(`FAIL: ${e.message.substring(0,20)}`, "text-red-500");
+                }
+                await new Promise(r => setTimeout(r, parseInt($('send-delay').value)));
             }
-            isRunning = false; toggleUI(false);
+            forceStop();
         }
 
-        function toggleUI(r) { $('#btn-start').classList.toggle('hidden', r); $('#btn-stop').classList.toggle('hidden', !r); }
-        function updateUI() { $('#v-sent').innerText = sentCount; $('#v-fail').innerText = failCount; }
-        function forceStop() { isRunning = false; toggleUI(false); addLog("SYSTEM: EMERGENCY STOP ACTIVE", "text-red-600"); }
-        function clearAll(t) { if(t==='smtp') smtps=[]; else targets=[]; updateUI(); addLog(`CLEARED: ${t.toUpperCase()} STACK`, "text-orange-500"); }
-        function updatePreview() { $('#p-frame').srcdoc = assemblePayload(); saveAllData(); }
-        function saveAllData() { const d = {}; document.querySelectorAll('.save-data').forEach(el => d[el.id] = el.type === 'checkbox' ? el.checked : el.value); localStorage.setItem('p7m_infinity', JSON.stringify(d)); }
+        function forceStop() { isRunning = false; $('btn-start').classList.remove('hidden'); $('btn-stop').classList.add('hidden'); }
+        function addLog(msg, color) {
+            const d = document.createElement('div');
+            d.className = color;
+            d.innerHTML = `<span class="text-zinc-800">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+            $('log').prepend(d);
+        }
+
         window.onload = () => {
-            const saved = localStorage.getItem('p7m_infinity');
-            if(saved) {
-                const d = JSON.parse(saved);
-                Object.keys(d).forEach(k => { const el = $(k); if(el) { if(el.type === 'checkbox') el.checked = d[k]; else el.value = d[k]; } });
+            const cache = localStorage.getItem('p7m_infinity_v4');
+            if(cache) {
+                const d = JSON.parse(cache);
+                Object.keys(d).forEach(k => { if($(k)) { if($(k).type === 'checkbox') $(k).checked = d[k]; else $(k).value = d[k]; } });
                 updatePreview();
             }
         };
