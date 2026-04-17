@@ -14,7 +14,8 @@
         .premium-border { position: relative; padding: 1px; background: var(--rb); background-size: 400%; border-radius: 13px; animation: flow 20s linear infinite; }
         @keyframes flow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
         .glass { backdrop-filter: blur(40px); background: rgba(15,17,26,0.95); }
-        .input-p7m { background: #080a0f; border: 1px solid #1e293b; color: #fff; padding: 10px; border-radius: 8px; width: 100%; outline: none; }
+        .input-p7m { background: #080a0f; border: 1px solid #1e293b; color: #fff; padding: 10px; border-radius: 8px; width: 100%; outline: none; transition: 0.3s; }
+        .input-p7m:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59,130,246,0.3); }
         .floating-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 100; }
         .analysis-card { border-left: 4px solid; padding: 10px; margin-bottom: 8px; background: rgba(255,255,255,0.03); }
         .custom-scroll::-webkit-scrollbar { width: 3px; }
@@ -23,11 +24,37 @@
 </head>
 <body class="p-4">
 
+    <div id="identity-modal" class="floating-modal" onclick="this.style.display='none'">
+        <div class="glass border-panel w-[700px] p-6 space-y-4" onclick="event.stopPropagation()">
+            <h2 class="text-purple-400 font-black uppercase text-xs border-b border-white/10 pb-2">Global Identity Settings</h2>
+            <div class="grid grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scroll">
+                <div class="space-y-1">
+                    <div class="flex justify-between"><label>USER-AGENT</label><input type="checkbox" id="auto-ua" checked></div>
+                    <input type="text" id="h-ua" class="input-p7m" placeholder="Mozilla/5.0...">
+                </div>
+                <div class="space-y-1">
+                    <div class="flex justify-between"><label>MESSAGE-ID</label><input type="checkbox" id="auto-mid" checked></div>
+                    <input type="text" id="h-mid" class="input-p7m">
+                </div>
+                <div class="space-y-1">
+                    <div class="flex justify-between"><label>GMAIL-THREAD</label><input type="checkbox" id="auto-tid" checked></div>
+                    <input type="text" id="h-tid" class="input-p7m">
+                </div>
+                <div class="space-y-1">
+                    <div class="flex justify-between"><label>X-MAILER</label><input type="checkbox" id="auto-mailer" checked></div>
+                    <input type="text" id="h-mailer" class="input-p7m" value="Microsoft Outlook 16.0">
+                </div>
+                <div class="space-y-1"><label>X-PRIORITY</label><input type="text" id="h-priority" class="input-p7m" value="1 (Highest)"></div>
+                <div class="space-y-1"><label>X-MS-PRIORITY</label><input type="text" id="h-mspriority" class="input-p7m" value="High"></div>
+            </div>
+            <button onclick="$('identity-modal').style.display='none'" class="w-full bg-purple-600 py-3 rounded font-black uppercase text-xs">Save Matrix</button>
+        </div>
+    </div>
+
     <div id="settings-modal" class="floating-modal" onclick="this.style.display='none'">
         <div class="glass border-panel w-[600px] p-6 space-y-4" onclick="event.stopPropagation()">
             <h2 id="modal-title" class="text-blue-400 font-black uppercase text-xs border-b border-white/10 pb-2">Rotator Configuration</h2>
             <textarea id="modal-input" class="input-p7m h-48 font-mono" placeholder="Manual inputs..."></textarea>
-            <div class="flex items-center gap-4"><input type="file" id="modal-file" class="text-[10px]"></div>
             <button onclick="saveModalData()" class="w-full bg-blue-600 py-3 rounded font-black uppercase text-xs">Save Matrix</button>
         </div>
     </div>
@@ -36,11 +63,12 @@
         
         <div class="col-span-3 space-y-4">
             <h1 class="text-2xl font-black italic">P7M <span class="text-blue-500">ULTRA</span></h1>
+            <button onclick="$('identity-modal').style.display='flex'" class="w-full bg-zinc-800 border border-white/10 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">⚙️ Global Identity Setting</button>
             
             <div class="premium-border">
                 <div class="border-panel glass space-y-3">
                     <p class="text-[10px] font-black text-blue-400 uppercase">Proxy Tunneling</p>
-                    <button id="btn-proxy-connect" onclick="connectProxy()" class="w-full bg-blue-600 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-[0_0_15px_rgba(37,99,235,0.4)]">Connect ProxyConfig.js</button>
+                    <button id="btn-proxy-connect" onclick="connectProxy()" class="w-full bg-blue-600 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-[0_0_15px_rgba(37,99,235,0.4)]">Connect IP</button>
                     <div id="px-status" class="text-center text-[9px] text-zinc-500 uppercase font-bold">Status: Disconnected</div>
                 </div>
             </div>
@@ -52,14 +80,14 @@
                         <option value="1-by-1">1-BY-1 (Sequential)</option>
                         <option value="random">Chaos Rotation</option>
                     </select>
-                    <div class="flex justify-between items-center"><label>Delay (ms)</label><input type="number" id="send-delay" value="3000" class="input-p7m !w-20"></div>
+                    <div class="flex justify-between items-center"><label class="text-[10px]">Delay (ms)</label><input type="number" id="send-delay" value="3000" class="input-p7m !w-20"></div>
                 </div>
             </div>
 
             <div class="border-panel border-b-4 border-blue-500 text-center">
                 <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-zinc-900 p-4 rounded-xl text-green-500"><span class="text-[9px] text-zinc-500">SENT</span><p id="stat-sent" class="text-3xl font-black">0</p></div>
-                    <div class="bg-zinc-900 p-4 rounded-xl text-red-500"><span class="text-[9px] text-zinc-500">FAIL</span><p id="stat-fail" class="text-3xl font-black">0</p></div>
+                    <div class="bg-zinc-900 p-4 rounded-xl text-green-500"><span class="text-[9px] text-zinc-500 uppercase">Sent</span><p id="stat-sent" class="text-3xl font-black">0</p></div>
+                    <div class="bg-zinc-900 p-4 rounded-xl text-red-500"><span class="text-[9px] text-zinc-500 uppercase">Fail</span><p id="stat-fail" class="text-3xl font-black">0</p></div>
                 </div>
                 <button onclick="startBlast()" id="btn-start" class="w-full bg-blue-600 py-4 rounded-xl font-black uppercase text-xs">Execute Blast</button>
                 <button onclick="stopBlast()" id="btn-stop" class="w-full bg-red-600 py-4 rounded-xl font-black uppercase text-xs hidden">Stop Engine</button>
@@ -101,7 +129,6 @@
                         <div class="space-y-2">
                             <div class="flex justify-between items-center"><label class="text-blue-400 font-bold uppercase">HTML Body</label><div class="flex gap-2">Auto <input type="checkbox" id="auto-html"></div></div>
                             <textarea id="s-body" oninput="updatePreview()" class="input-p7m h-[180px] font-mono text-[9px]" placeholder="HTML Source..."></textarea>
-                            
                             <div class="flex justify-between items-center mt-2"><label class="text-green-400 font-bold uppercase">Plain Text</label><div class="flex gap-2">Auto Gen <input type="checkbox" id="auto-text"></div></div>
                             <textarea id="s-text" class="input-p7m h-[120px] font-mono text-[9px]" placeholder="Backup Text Body..."></textarea>
                         </div>
@@ -164,20 +191,33 @@
         $('f-smtp').onchange = e => parseFiles(e, smtps, 'count-smtp', 'name-smtp');
         $('f-target').onchange = e => parseFiles(e, targets, 'count-target', 'name-target');
 
+        $('f-attach').onchange = e => {
+            Array.from(e.target.files).forEach(f => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    attachments.push({ filename: f.name, content: reader.result.split(',')[1], encoding: 'base64' });
+                    $('attach-preview').innerHTML += `<div class="attach-badge bg-zinc-800 p-1 rounded border border-blue-500 text-[8px]">📎 ${f.name}</div>`;
+                    addLog("ATTACH", `${f.name} uploaded instantly`, "blue");
+                };
+                reader.readAsDataURL(f);
+            });
+        };
+
         function openSettings(type) {
             activeType = type;
             $('settings-modal').style.display = 'flex';
+            $('modal-title').innerText = `${type.toUpperCase()} CONFIGURATION`;
             $('modal-input').value = localStorage.getItem(`list_${type}`) || "";
         }
 
         function saveModalData() {
             localStorage.setItem(`list_${activeType}`, $('modal-input').value);
             $('settings-modal').style.display = 'none';
-            addLog("MATRIX", `${activeType.toUpperCase()} settings updated`, "blue");
+            addLog("MATRIX", `${activeType.toUpperCase()} list updated`, "purple");
         }
 
         function updatePreview() {
-            const btn = `<div style="text-align:center;margin:15px 0;"><a href="${$('url-box').value}" style="background:#2563eb;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">${$('url-text').value}</a></div>`;
+            const btn = $('url-box').value ? `<div style="text-align:center;margin:15px 0;"><a href="${$('url-box').value}" style="background:#2563eb;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">${$('url-text').value || 'Click Here'}</a></div>` : '';
             $('p-frame').srcdoc = `<html><body>${$('s-body').value}${btn}</body></html>`;
         }
 
@@ -201,9 +241,9 @@
 
                 const payload = {
                     smtp: { user: smtps[i % smtps.length][0], pass: smtps[i % smtps.length][1] },
-                    proxy: { active: proxyActive, host: 'localhost', port: '1080' },
+                    proxy: { active: proxyActive },
                     mail: { to: targets[i][0], fromName: $('s-name').value, subject: $('s-sub').value, html: htmlBody, text: $('s-text').value },
-                    headers: { userAgent: "Mozilla/5.0...", mailer: "P7M Ultra 2026" },
+                    headers: { userAgent: $('h-ua').value || "Mozilla/5.0...", mailer: $('h-mailer').value },
                     encoding: $('encoding').value, attachments
                 };
 
@@ -212,11 +252,11 @@
                     const r = await res.json();
                     if(r.success) {
                         $('stat-sent').innerText = parseInt($('stat-sent').innerText)+1;
-                        addLog("PASS", `Target: ${targets[i][0]}`, "green");
+                        addLog("PASS", `Success: ${targets[i][0]}`, "green");
                     } else throw r;
                 } catch (e) {
                     $('stat-fail').innerText = parseInt($('stat-fail').innerText)+1;
-                    addLog("FAIL", `Reject: ${e.error || "Timeout"}`, "red");
+                    addLog("FAIL", `Error: ${targets[i][0]} -> ${e.error || "Connection Lost"}`, "red");
                 }
                 await new Promise(r => setTimeout(r, parseInt($('send-delay').value)));
             }
